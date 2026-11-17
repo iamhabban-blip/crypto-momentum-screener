@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: trendscope
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPASSWORD: postgres
+      DATABASE_URL: postgresql+psycopg://trendscope_app:app@localhost:5432/trendscope
+      MIGRATION_DATABASE_URL: postgresql+psycopg://trendscope_owner:owner@localhost:5432/trendscope
+      JWT_SECRET: ci-only-secret-0123456789abcdef0123456789abcdef
+      COOKIE_SECURE: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: backend/requirements-dev.txt }
+      - name: Create database roles
+        run: |
+          psql -U postgres -d trendscope -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE trendscope_owner LOGIN PASSWORD 'owner';
+          CREATE ROLE trendscope_app LOGIN PASSWORD 'app';
+          CREATE ROLE trendscope_readonly LOGIN PASSWORD 'ro';
+          ALTER DATABASE trendscope OWNER TO trendscope_owner;
+          SQL
+          psql -U postgres -d trendscope -v ON_ERROR_STOP=1 -f backend/sql/00_roles.sql
+      - name: Install
+        working-directory: backend
+        run: pip install -r requirements-dev.txt
+      - name: Migrate
+        working-directory: backend
+        run: alembic upgrade head
+      - name: Verify database permission rules
+        run: |
+          PGPASSWORD=app psql -U trendscope_app -d trendscope -c "UPDATE audit_log SET action='x'" && exit 1 || true
+          PGPASSWORD=app psql -U trendscope_app -d trendscope -c "CREATE TABLE hack(i int)" && exit 1 || true
+      - name: Tests
+        working-directory: backend
+        run: pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
