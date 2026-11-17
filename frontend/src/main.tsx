@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Loading } from "./components/ui";
 import "./index.css";
 import { AuthProvider, useAuth } from "./lib/auth";
-import type { Role } from "./lib/api";
+import { DEMO, type Role } from "./lib/api";
 import Account from "./pages/Account";
 import AdminAudit from "./pages/AdminAudit";
 import AdminSettings from "./pages/AdminSettings";
@@ -46,10 +46,13 @@ function App() {
   );
 }
 
+// GitHub Pages has no server-side routing, so the demo uses #/ URLs.
+const Router = DEMO ? HashRouter : BrowserRouter;
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <Router>
       <AuthProvider><App /></AuthProvider>
-    </BrowserRouter>
+    </Router>
   </React.StrictMode>,
 );

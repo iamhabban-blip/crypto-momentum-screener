@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import SignalsTable from "../components/SignalsTable";
-import { Empty, ErrorNote, Loading, Panel, RegimePill } from "../components/ui";
+import { Empty, ErrorNote, Panel, RegimePill } from "../components/ui";
 import type { ScanRun, Signal } from "../lib/api";
 import { FACTORS, hourLabel } from "../lib/format";
 import { useApi } from "../lib/useApi";
+import { LiveLoading } from "../demo/DemoBits";
 
 export default function Screener() {
   const [showFiltered, setShowFiltered] = useState(false);
@@ -15,7 +16,7 @@ export default function Screener() {
   const rows = useMemo(() => (data?.signals ?? []).filter((s) =>
     s.symbol.includes(q.toUpperCase()) && s.score >= minScore), [data, q, minScore]);
 
-  if (loading && !data) return <Loading />;
+  if (loading && !data) return <LiveLoading />;
   if (error) return <ErrorNote message={error} />;
   const run = data?.run;
 

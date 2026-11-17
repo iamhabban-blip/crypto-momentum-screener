@@ -14,6 +14,10 @@ Every hour it scores the market on six research-backed rules, ranks the coins, a
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![License](https://img.shields.io/badge/license-MIT-7C5CFF)
 
+### [▶ Open the live demo](https://iamhabban-blip.github.io/crypto-momentum-screener/)
+
+<sub>Real Binance market data, scored live in your browser by the same rules as the backend (parity-tested in CI). Sign-in is pre-filled.</sub>
+
 <img src="docs/screenshots/dashboard.png" alt="Trendscope dashboard" width="100%" />
 
 <sub>Screenshots use the built-in demo market (fictional coins ending in "X"), so they never show misleading real prices.</sub>
@@ -110,6 +114,16 @@ flowchart LR
 | Retention & backups | automatic pruning + daily compressed backups with 7-day rotation |
 
 Details: [docs/SECURITY.md](docs/SECURITY.md) · [docs/DATABASE.md](docs/DATABASE.md)
+
+## Live demo
+
+**[iamhabban-blip.github.io/crypto-momentum-screener](https://iamhabban-blip.github.io/crypto-momentum-screener/)** runs entirely in the visitor's browser, no server needed:
+
+* pulls every Binance Spot USDT pair above the volume filter (about 100 coins, ~1,000 hourly candles each) from Binance's public market-data API,
+* scores them with a TypeScript port of the engine that CI checks against the Python engine on identical candles (they must match to 1e-6),
+* runs **real walk-forward backtests** on live history right in the browser (top 40 coins, up to a year).
+
+Accounts, settings and the audit log in the demo are sample data kept in your browser. The full multi-user app with PostgreSQL, auth and scheduled scans is the Docker version below.
 
 ## Quick start
 

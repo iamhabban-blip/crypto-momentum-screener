@@ -51,6 +51,12 @@ jobs:
       - name: Tests
         working-directory: backend
         run: pytest -q
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Browser engine matches Python engine (live demo parity)
+        run: |
+          (cd backend && python -m scripts.make_parity_fixture /tmp/fixture.json)
+          node --experimental-strip-types frontend/scripts/parity-check.ts /tmp/fixture.json
 
   frontend:
     runs-on: ubuntu-latest

@@ -4,12 +4,13 @@ import {
 } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { DemoBanner } from "../demo/DemoBits";
 import { useAuth } from "../lib/auth";
 
 function Logo() {
   return (
     <div className="flex items-center gap-2.5 px-2">
-      <img src="/favicon.svg" alt="" className="h-8 w-8" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-8 w-8" />
       <div>
         <div className="text-[15px] font-bold tracking-tight text-white">Trendscope</div>
         <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-mute">Momentum screener</div>
@@ -84,6 +85,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        <DemoBanner />
         <header className="flex flex-wrap items-center justify-between gap-4 px-6 pb-2 pt-7 lg:px-10">
           <div>
             <h1 className="text-[26px] font-semibold tracking-tight text-white">{greeting}, {user?.full_name?.split(" ")[0]}</h1>

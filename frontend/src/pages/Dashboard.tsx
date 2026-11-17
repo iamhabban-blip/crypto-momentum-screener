@@ -7,6 +7,7 @@ import { Change, CoinAvatar, Empty, ErrorNote, Kpi, Loading, Panel, RegimePill, 
 import type { ScanRun, Signal } from "../lib/api";
 import { base, price, timeAgo } from "../lib/format";
 import { useApi } from "../lib/useApi";
+import { LiveLoading } from "../demo/DemoBits";
 
 interface Latest { run: ScanRun | null; signals: Signal[] }
 interface BtcPoint { t: string; close: number; sma200: number | null }
@@ -32,7 +33,7 @@ export default function Dashboard() {
     t: new Date(p.t).toLocaleDateString(undefined, { month: "short", day: "numeric" }), close: p.close, sma200: p.sma200,
   })), [btc.data]);
 
-  if (latest.loading && !latest.data) return <Loading />;
+  if (latest.loading && !latest.data) return <LiveLoading />;
   if (latest.error) return <ErrorNote message={latest.error} />;
   if (!run) {
     return (

@@ -3,10 +3,11 @@ import { ArrowLeft, ShieldAlert, Star, Target } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Change, CoinAvatar, ErrorNote, Loading, Panel, ScoreRing, tooltipStyle } from "../components/ui";
+import { Change, CoinAvatar, ErrorNote, Panel, ScoreRing, tooltipStyle } from "../components/ui";
 import { api, type Candle, type Signal } from "../lib/api";
 import { FACTORS, base, price } from "../lib/format";
 import { useApi } from "../lib/useApi";
+import { LiveLoading } from "../demo/DemoBits";
 
 interface Detail { symbol: string; signal: Signal | null; candles: Candle[]; score_history: { t: string; score: number; rank: number | null }[]; on_watchlist: boolean }
 
@@ -45,7 +46,7 @@ export default function Coin() {
     }));
   }, [data]);
 
-  if (loading && !data) return <Loading />;
+  if (loading && !data) return <LiveLoading />;
   if (error) return <ErrorNote message={error} />;
   if (!data) return null;
   const s = data.signal;

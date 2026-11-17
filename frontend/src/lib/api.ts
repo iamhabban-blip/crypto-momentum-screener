@@ -1,3 +1,8 @@
+import { DemoError, demoApi } from "../demo/mock";
+
+/** True in the GitHub Pages live demo build (VITE_DEMO=1): requests are answered in the browser. */
+export const DEMO = import.meta.env.VITE_DEMO === "1";
+
 // API client. The access token lives only in memory (never localStorage, so XSS can't steal a
 // long-lived credential). The refresh token is an httpOnly cookie the browser sends to /api/auth.
 
@@ -37,6 +42,10 @@ export class ApiError extends Error {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function doRefresh(): Promise<boolean> {
+  if (DEMO) {
+    try { const b = await demoApi("/api/auth/refresh", "POST"); accessToken = b.access_token; sessionUser = b.user; return true; }
+    catch { return false; }
+  }
   for (let attempt = 0; attempt < 3; attempt++) {
     const r = await fetch("/api/auth/refresh", {
       method: "POST", credentials: "same-origin", headers: { "X-Requested-With": "trendscope" },
@@ -60,6 +69,16 @@ export function refreshSession(): Promise<boolean> {
 export let sessionUser: User | null = null;
 
 export async function api<T = any>(path: string, opts: RequestInit & { json?: unknown } = {}, retry = true): Promise<T> {
+  if (DEMO) {
+    try { return await demoApi(path, opts.method ?? "GET", opts.json); }
+    catch (e) {
+      if (e instanceof DemoError) {
+        if (e.status === 401 && !path.startsWith("/api/auth/login")) { accessToken = null; onSignedOut(); }
+        throw new ApiError(e.status, e.message);
+      }
+      throw new ApiError(502, `Couldn't reach Binance's public market data: ${(e as Error).message}`);
+    }
+  }
   const headers = new Headers(opts.headers);
   headers.set("X-Requested-With", "trendscope");
   if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);

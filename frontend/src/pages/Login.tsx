@@ -3,6 +3,9 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ErrorNote } from "../components/ui";
 import { useAuth } from "../lib/auth";
+import { DEMO } from "../lib/api";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../demo/mock";
+import { REPO_URL } from "../demo/DemoBits";
 
 const points = [
   { icon: <Sparkles className="h-4 w-4" />, title: "Rules you can read",
@@ -16,8 +19,8 @@ const points = [
 export default function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(DEMO ? DEMO_EMAIL : "");
+  const [password, setPassword] = useState(DEMO ? DEMO_PASSWORD : "");
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -46,7 +49,7 @@ export default function Login() {
         </svg>
         <div className="relative flex h-full flex-col justify-between p-12">
           <div className="flex items-center gap-3">
-            <img src="/favicon.svg" alt="" className="h-10 w-10" />
+            <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-10 w-10" />
             <span className="text-lg font-bold text-white">Trendscope</span>
           </div>
           <div className="max-w-md">
@@ -74,9 +77,19 @@ export default function Login() {
 
       <div className="flex items-center justify-center p-6">
         <form onSubmit={submit} className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden"><img src="/favicon.svg" alt="" className="h-10 w-10" /></div>
+          <div className="mb-8 lg:hidden"><img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-10 w-10" /></div>
           <h2 className="text-2xl font-semibold tracking-tight text-white">Sign in</h2>
           <p className="mt-1.5 text-sm text-mute">Accounts are created by an administrator.</p>
+          {DEMO && (
+            <div className="mt-6 rounded-xl border border-violet-500/30 bg-violet-500/10 p-4 text-sm">
+              <div className="font-semibold text-white">Live demo</div>
+              <div className="mt-1 text-xs leading-relaxed text-soft">
+                The demo login is filled in for you: <span className="font-mono text-violet-200">{DEMO_EMAIL}</span> / <span className="font-mono text-violet-200">{DEMO_PASSWORD}</span>.
+                Market data is live from Binance; accounts and settings are sample data in your browser.{" "}
+                <a href={REPO_URL} className="font-semibold text-violet-200 underline-offset-2 hover:underline" target="_blank" rel="noreferrer">See the source</a>.
+              </div>
+            </div>
+          )}
           <div className="mt-8 space-y-4">
             <label className="block">
               <span className="mb-1.5 block text-xs font-medium text-soft">Email</span>

@@ -7,6 +7,7 @@ import { api, type Backtest } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { timeAgo } from "../lib/format";
 import { useApi } from "../lib/useApi";
+import { DEMO } from "../lib/api";
 
 const rows: [string, string, (v: any) => string][] = [
   ["total_return_pct", "Total return", (v) => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`],
@@ -17,7 +18,7 @@ const rows: [string, string, (v: any) => string][] = [
 ];
 
 function NewRun({ onQueued }: { onQueued: () => void }) {
-  const [f, setF] = useState({ days: 365, top_k: 5, hold_hours: 72, min_score: 60, fee_pct: 0.1, regime_filter: true });
+  const [f, setF] = useState({ days: DEMO ? 180 : 365, top_k: 5, hold_hours: 72, min_score: 60, fee_pct: 0.1, regime_filter: true });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const submit = async (e: FormEvent) => {
@@ -69,14 +70,15 @@ export default function Backtests() {
       {can("analyst") && (
         <Panel title="Run a backtest" subtitle="Walk-forward, fees included"
           action={pending && <span className="chip border-amber-500/30 bg-amber-500/10 text-amber-400">
-            <FlaskConical className="h-3.5 w-3.5 animate-pulse" /> Backtest #{pending.id} {pending.status}…</span>}>
+            <FlaskConical className="h-3.5 w-3.5 animate-pulse" /> Backtest #{pending.id} {pending.status}… {(pending as any).progress ?? ""}</span>}>
           <NewRun onQueued={list.reload} />
+          {DEMO && <p className="border-t border-line px-5 py-3 text-xs text-mute">Live demo: runs in your browser on real Binance history for the 40 most-traded coins (up to 365 days; about 200-400 requests, 20-60 seconds). The full app tests up to 120 coins over 3 years on the server.</p>}
         </Panel>
       )}
 
       {!m ? (
         <div className="card"><Empty title="No finished backtests yet">
-          {can("analyst") ? "Run one above. It downloads up to 3 years of hourly candles, so it can take several minutes." :
+          {can("analyst") ? (DEMO ? "Press Run backtest above. It downloads real hourly history and tests the rules right in your browser." : "Run one above. It downloads up to 3 years of hourly candles, so it can take several minutes.") :
             "An analyst or admin can run one."}</Empty></div>
       ) : (
         <>

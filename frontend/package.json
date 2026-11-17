@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:demo": "tsc -b && VITE_DEMO=1 vite build --base /crypto-momentum-screener/ --outDir dist-demo",
+    "parity": "node --experimental-strip-types scripts/parity-check.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
